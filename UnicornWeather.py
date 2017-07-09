@@ -450,6 +450,10 @@ if __name__ == '__main__':
 
             update_unicorn()
 
+        elif argv[1] == 'clear':
+
+            clear_all()
+
     except KeyboardInterrupt:
 
         running = False

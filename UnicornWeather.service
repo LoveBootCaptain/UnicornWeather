@@ -6,7 +6,9 @@ After=network-online.target
 
 [Service]
 WorkingDirectory=/home/pi/UnicornWeather/
+ExecStartPre=/home/pi/UnicornWeather/UnicornWeather.py clear
 ExecStart=/home/pi/UnicornWeather/UnicornWeather.py run
+ExecStopPost=/home/pi/UnicornWeather/UnicornWeather.py clear
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
