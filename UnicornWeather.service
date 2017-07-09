@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 [Unit]
-Description=UnicornPi
+Description=UnicornWeather
 Wants=network-online.target
 After=network-online.target
 
 [Service]
-WorkingDirectory=/home/pi/UnicornPi/
-ExecStart=/home/pi/UnicornPi/UnicornWeather.py run
+WorkingDirectory=/home/pi/UnicornWeather/
+ExecStart=/home/pi/UnicornWeather/UnicornWeather.py run
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
