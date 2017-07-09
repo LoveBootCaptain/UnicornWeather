@@ -1,0 +1,1 @@
+this is where your log and weather.json file is saved
