@@ -119,7 +119,7 @@ def quit_all():
     quit()
 
 
-def blink(color):
+def blinkt_color(color):
     blinkt_clear()
 
     for y in range(9):
@@ -202,7 +202,7 @@ def update_json():
 
         log_string('json file saved')
 
-        blink('green')
+        blinkt_color('green')
 
         time.sleep(0.5)
 
@@ -250,7 +250,7 @@ def icon_path():
 
             blinkt_clear()
 
-            blink('red')
+            blinkt_color('red')
 
             time.sleep(0.5)
 
@@ -279,7 +279,7 @@ def get_temp():
     scrollphat.write_string(temp_str)
     scrollphat.update()
 
-    blink('blue')
+    blinkt_color('blue')
 
     time.sleep(0.5)
 
@@ -476,7 +476,8 @@ if __name__ == '__main__':
 
             # get_rain_forecast()
             # show_graph(get_rain_forecast())
-            # test_unicorn()
+            # draw_single_icon('partly-cloudy-day')
+            test_unicorn()
 
         elif argv[1] == 'run':
 
