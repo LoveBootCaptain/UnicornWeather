@@ -37,14 +37,12 @@ class App(object):
         UniCorn().draw_animation()
 
         try:
-            # start all loops
-
             log_str('still alive {}'.format(self.running))
 
+            # start all loops
+
             Update().data_loop()
-
             ScrollPhat().show_str(Data().output_str())
-
             Blinkt().show_graph(Data().get_rain_forecast())
 
             UniCorn().icon_loop()
@@ -94,18 +92,20 @@ class App(object):
 
 if __name__ == '__main__':
 
+    myApp = App()
+
     if sys.argv[1] == 'icon_test':
         pass
 
     elif sys.argv[1] == 'run':
 
-        t = threading.Thread(target=App().run(), daemon=True)
-        THREADS.append(t)
-        t.start()
+        main_thread = threading.Thread(target=myApp.run(), daemon=True)
+        THREADS.append(main_thread)
+        main_thread.start()
 
     elif sys.argv[1] == 'clear':
 
-        App().stop()
+        myApp.stop()
 
     else:
         pass

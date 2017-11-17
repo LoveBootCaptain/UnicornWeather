@@ -116,6 +116,7 @@ class Data(object):
 
 
 if __name__ == '__main__':
+
     myData = Data()
     myData.image()
     log_str(myData.summary_str)
