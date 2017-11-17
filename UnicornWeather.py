@@ -1,18 +1,19 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
+
+import json
+import logging.handlers
+import multiprocessing
 import os
 import threading
 import time
-import json
+from sys import argv, exit
 
-import requests
-import unicornhat as unicorn
 import blinkt
+import requests
 import scrollphat
-
+import unicornhat as unicorn
 from PIL import Image
-from sys import argv
-import logging.handlers
 
 leds = [0, 0, 0, 0, 0, 16, 64, 255, 64, 16, 0, 0, 0, 0, 0]
 
@@ -30,7 +31,7 @@ threads = []
 ICON_PATH = 'icons/'
 icon_extension = '.png'
 
-WeatherIcon_Path = ''
+WeatherIcon_Path = ICON_PATH + 'raspberry' + icon_extension
 
 api_endpoint = 'http://192.168.178.123/'
 latest = 'latest_weather.json'
@@ -39,7 +40,7 @@ current = 'current_weather.json'
 running = True
 
 color_list = []
-forecast_range_hour = 8  # use len(hourly) for full data (48h)
+forecast_range_hour = 8  # use len(hourly) for full data_loop (48h)
 
 start_time = time.time()
 
@@ -63,13 +64,18 @@ def log_string(string):
 
 
 def scroll_init():
-    scrollphat.set_brightness(10)
+    scrollphat.set_brightness(25)
     scrollphat.set_rotate(False)
 
 
 def scroll_clear():
+    scrollphat.clear_buffer()
     scrollphat.clear()
     scrollphat.update()
+
+
+def blinkt_init():
+    blinkt.set_brightness(0.05)
 
 
 def blinkt_fade():
@@ -85,10 +91,6 @@ def blinkt_clear():
     blinkt.clear()
 
 
-def blinkt_init():
-    blinkt.set_brightness(0.05)
-
-
 def unicorn_init():
     unicorn.brightness(0.75)
     unicorn.rotation(90)
@@ -100,12 +102,18 @@ def unicorn_clear():
 
 
 def clear_all():
+
+    log_string('\n *** clearing all displays *** \n')
+
+    scroll_clear()
     unicorn_clear()
     blinkt_clear()
-    scroll_clear()
 
 
 def quit_all():
+
+    log_string('Quit now')
+
     global running
 
     running = False
@@ -115,8 +123,6 @@ def quit_all():
         thread.join()
 
     clear_all()
-
-    quit()
 
 
 def blinkt_color(color):
@@ -189,7 +195,7 @@ def update_json():
 
         log_string('trying contact url: {}'.format(api_endpoint + latest))
 
-        connection = requests.get(api_endpoint + latest, timeout=2)
+        connection = requests.get(api_endpoint + latest, timeout=15)
         data = connection.json()
 
         CONNECTION_ERROR = False
@@ -222,12 +228,12 @@ def read_json():
 
     temp_data = json.loads(data)
 
-    log_string('json data read by module')
+    log_string('json data_loop read by module')
 
     return temp_data
 
 
-def icon_path():
+def update_icon_path():
 
     global WeatherIcon_Path, PATH_VALID
 
@@ -239,22 +245,16 @@ def icon_path():
         icon = read_json()['currently']['icon']
         log_string('icon found: {}'.format(icon))
 
-        WeatherIcon_Path = ICON_PATH + icon + icon_extension
-
-        log_string('validating path: {}'.format(WeatherIcon_Path))
-
         if os.path.isfile(WeatherIcon_Path):
 
-            log_string('TRUE: {}'.format(WeatherIcon_Path))
+            log_string('TRUE valid path: {}'.format(WeatherIcon_Path))
             PATH_VALID = True
 
-            blinkt_clear()
+            WeatherIcon_Path = ICON_PATH + icon + icon_extension
 
             blinkt_color('red')
 
             time.sleep(0.5)
-
-            return WeatherIcon_Path
 
         else:
 
@@ -265,23 +265,83 @@ def icon_path():
 
     except TypeError as e:
 
-        log_string('no data found - quit')
+        log_string('no data_loop found - quit')
         log_string('ERROR: {}'.format(e))
 
         quit_all()
 
 
-def get_temp():
+def get_temp_str():
 
     temp = read_json()['currently']['sensor_temp_outside']
-    temp_str = str("{}'".format(int(temp)))
+    temp_str = str("{}'".format(int(temp))).zfill(3)
     log_string('Temp: {}'.format(temp_str))
-    scrollphat.write_string(temp_str)
-    scrollphat.update()
 
-    blinkt_color('blue')
+    return temp_str
 
-    time.sleep(0.5)
+
+def get_time_str():
+
+    time_str = str(time.strftime('%H:%M'))
+    log_string(time_str)
+
+    return time_str
+
+
+def get_summary_str():
+
+    summary_str = read_json()['currently']['summary_str']
+
+    replace_me = {
+        'ö': 'oe',
+        'Ö': 'Oe',
+        'ü': 'ue',
+        'Ü': 'Ue',
+        'ä': 'ae',
+        'Ä': 'Ae',
+        'ß': 'ss'
+    }
+
+    for key in replace_me:
+
+        summary_str = summary_str.replace(key, replace_me[key])
+
+    log_string('summary_str: {} '.format(summary_str))
+
+    return summary_str
+
+
+def build_scroll_str():
+
+    tmp_str = get_temp_str()
+    summary_str = get_summary_str()
+    time_str = get_time_str()
+
+    scroll_str = str(tmp_str + ' ' + summary_str + ' ' + time_str + ' ')
+
+    log_string(scroll_str)
+
+    return scroll_str
+
+
+def scroll():
+
+    if running:
+
+        scrollphat.clear_buffer()
+        scrollphat.write_string(build_scroll_str())
+
+        length = scrollphat.buffer_len()
+
+        for i in range(length):
+            try:
+                scrollphat.scroll()
+                time.sleep(0.1)
+            except KeyboardInterrupt:
+                quit_all()
+    else:
+
+        quit_all()
 
 
 def get_rain_forecast():
@@ -293,7 +353,7 @@ def get_rain_forecast():
 
     color_list = []
 
-    hourly_data = read_json()['hourly']['data']
+    hourly_data = read_json()['hourly']['data_loop']
 
     for item in hourly_data:
         rain_percentage = item['precipProbability'] * 100
@@ -312,7 +372,7 @@ def get_rain_forecast():
 
         color_list.append(color)
 
-    log_string('Regenwahrscheinlichkeit 24h: {}\n'
+    log_string('Regenwahrscheinlichkeit 8h: {}\n'
                'Farben auf Display: {}'.format(
                 percentage_list[:forecast_range_hour],
                 color_list
@@ -323,20 +383,29 @@ def get_rain_forecast():
 
 def show_graph(forecast_list):
 
-    for position, item in enumerate(forecast_list):
+    if running:
 
-        if item == 'G':
-            blinkt.set_pixel(position, 0, 255, 0)
-            blinkt_fade()
-        elif item == 'Y':
-            blinkt.set_pixel(position, 255, 175, 0)
-            blinkt_fade()
-        elif item == 'O':
-            blinkt.set_pixel(position, 255, 50, 0)
-            blinkt_fade()
-        elif item == 'R':
-            blinkt.set_pixel(position, 255, 0, 0)
-            blinkt_fade()
+        for position, item in enumerate(forecast_list):
+
+            if item == 'G':
+                blinkt.set_pixel(position, 0, 255, 0)
+                blinkt_fade()
+            elif item == 'Y':
+                blinkt.set_pixel(position, 255, 175, 0)
+                blinkt_fade()
+            elif item == 'O':
+                blinkt.set_pixel(position, 255, 50, 0)
+                blinkt_fade()
+            elif item == 'R':
+                blinkt.set_pixel(position, 255, 0, 0)
+                blinkt_fade()
+            else:
+                blinkt.set_pixel(position, 0, 0, 0)
+                blinkt_fade()
+
+    else:
+
+        quit_all()
 
 
 def draw_animation(image):
@@ -363,7 +432,6 @@ def draw_animation(image):
 
                 if valid:
                     unicorn.show()
-                    # scrollphat.scroll()
                     time.sleep(animation_cycle_time)
 
     except KeyboardInterrupt:
@@ -385,6 +453,9 @@ def draw_single_icon(animation):
 
 
 def update_unicorn():
+
+    global WeatherIcon_Path
+
     unicorn.clear()
 
     log_string('Start Unicorn image loop')
@@ -404,33 +475,53 @@ def update_unicorn():
 
 def update():
 
-    update_thread = threading.Timer(60, update)
+    update_thread = threading.Timer(90, update)
     update_thread.start()
     threads.append(update_thread)
 
-    blinkt_clear()
-    update_json()
+    if running:
+
+        blinkt_clear()
+        update_json()
+        get_rain_forecast()
+
+    else:
+
+        quit_all()
 
 
 def loop():
 
     loop_thread = threading.Timer(30, loop)
+    # loop_thread.daemon = True
     loop_thread.start()
     threads.append(loop_thread)
 
-    blinkt_clear()
-    icon_path()
-    get_temp()
-    get_rain_forecast()
+    if running:
+
+        blinkt_clear()
+        multiprocessing.Process(target=scroll).start()
+        blinkt_color('blue')
+        time.sleep(0.5)
+        update_icon_path()
+        get_rain_forecast()
+
+    else:
+
+        quit_all()
 
 
 def main():
     global running
 
+    log_string('booting weather station')
+
     try:
 
+        draw_single_icon('raspberry_boot')
         update()
         loop()
+        update_unicorn()
 
     except KeyboardInterrupt:
 
@@ -441,8 +532,9 @@ def main():
 
 def test_unicorn():
     log_string('Testing all images in folder {}'.format(ICON_PATH))
+    log_string(", ".join(sorted(os.listdir(ICON_PATH))))
 
-    for image in os.listdir(ICON_PATH):
+    for image in sorted(os.listdir(ICON_PATH)):
 
         if image.endswith(icon_extension):
 
@@ -462,32 +554,26 @@ def test_unicorn():
 
 if __name__ == '__main__':
 
-    log_string('\n *** starting UnicornPi *** \n')
-
     try:
 
         blinkt_init()
         unicorn_init()
         scroll_init()
 
-        if argv[1] == 'test':
+        if argv[1] == 'icon_test':
 
-            log_string('testing animations and images')
+            log_string('\n *** testing animations and images *** \n')
 
             # get_rain_forecast()
             # show_graph(get_rain_forecast())
             # draw_single_icon('partly-cloudy-day')
             test_unicorn()
+            quit_all()
 
         elif argv[1] == 'run':
 
-            log_string('booting weather station')
-
-            draw_single_icon('raspberry_boot')
-
+            log_string('\n *** starting UnicornPi *** \n')
             main()
-
-            update_unicorn()
 
         elif argv[1] == 'clear':
 
