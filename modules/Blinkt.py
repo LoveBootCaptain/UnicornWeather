@@ -20,10 +20,6 @@ class Blinkt(object):
         self.name = 'Blinkt'
         log_str('init {}'.format(self.__module__))
 
-        self.leds = [0, 0, 0, 0, 0, 16, 64, 255, 64, 16, 0, 0, 0, 0, 0]
-        self.animation_cycle_time = 0.25
-        self.start_time = time.time()
-
         self.hour = int(datetime.now().strftime("%H"))
 
         if 9 <= self.hour <= 17:
