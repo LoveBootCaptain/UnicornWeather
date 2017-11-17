@@ -10,7 +10,6 @@ from PIL import Image
 from modules.Config import *
 from modules.Data import Data
 from modules.Log import log_str
-from modules.Blinkt import Blinkt
 
 
 class UniCorn(object):
@@ -27,6 +26,8 @@ class UniCorn(object):
         self.rotation = UNICORN_ROTATION
 
         unicorn.rotation(self.rotation)
+
+        self.width, self.height = unicorn.get_shape()
 
         self.hour = int(datetime.now().strftime("%H"))
 
@@ -54,23 +55,22 @@ class UniCorn(object):
 
         return cls.brightness
 
-    @staticmethod
-    def draw_animation(image=Image.open(TEST_IMAGE)):
+    def draw_animation(self, image=Image.open(TEST_IMAGE)):
 
-        width, height = unicorn.get_shape()
+        # width, height = unicorn.get_shape()
 
         # this is the original pimoroni function for drawing sprites
 
         log_str('start image loop')
 
-        for o_x in range(int(image.size[0] / width)):
-            for o_y in range(int(image.size[1] / height)):
+        for o_x in range(int(image.size[0] / self.width)):
+            for o_y in range(int(image.size[1] / self.height)):
 
                 valid = False
-                for x in range(width):
-                    for y in range(height):
+                for x in range(self.width):
+                    for y in range(self.height):
 
-                        pixel = image.getpixel(((o_x * width) + y, (o_y * height) + x))
+                        pixel = image.getpixel(((o_x * self.width) + y, (o_y * self.height) + x))
                         r, g, b = int(pixel[0]), int(pixel[1]), int(pixel[2])
 
                         if r or g or b:
@@ -93,9 +93,17 @@ class UniCorn(object):
         THREADS.append(t)
         t.start()
 
-    @staticmethod
-    def clear():
+    def clear(self, fast=False):
         log_str('clear unicorn')
+
+        if not fast:
+            for x in range(self.width):
+                for y in range(self.height):
+                    unicorn.set_pixel(x, y, 0, 0, 0)
+
+                    sleep(0.025)
+                    unicorn.show()
+
         unicorn.clear()
         unicorn.show()
         unicorn.off()

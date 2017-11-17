@@ -30,7 +30,7 @@ class App(object):
 
         # do init stuff here
 
-        self.clear_all()
+        self.clear_all(True)
 
         Blinkt().show_graph()
         ScrollPhat().show_str()
@@ -77,17 +77,17 @@ class App(object):
             for timer in TIMER:
                 timer.cancel()
         finally:
-            self.clear_all()
+            self.clear_all(False)
 
     def run(self):
         log_str('run {}'.format(self.name))
         self.start()
 
-    def clear_all(self):
+    def clear_all(self, fast=True):
         log_str('clear all {}'.format(self.name))
-        UniCorn().clear()
-        ScrollPhat().clear()
-        Blinkt().clear()
+        Blinkt().clear(fast)
+        ScrollPhat().clear(fast)
+        UniCorn().clear(fast)
 
 
 if __name__ == '__main__':

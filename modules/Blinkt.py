@@ -45,18 +45,20 @@ class Blinkt(object):
         blinkt.show()
         time.sleep(0.075)
 
-    def clear(self):
+    def clear(self, fast):
         log_str('clear blinkt')
-        for i in reversed(range(8)):
-            blinkt.set_pixel(i, 0, 0, 0)
-            self.fade()
+
+        if not fast:
+            for i in reversed(range(8)):
+                blinkt.set_pixel(i, 0, 0, 0)
+                self.fade()
 
         blinkt.clear()
         blinkt.show()
 
     def show_graph(self, forecast_list=TEST_FORECAST):
 
-        self.clear()
+        self.clear(False)
 
         for position, item in enumerate(forecast_list):
 

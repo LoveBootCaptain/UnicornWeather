@@ -33,7 +33,7 @@ SCROLL_ROTATION = False
 
 BRIGHTNESS = namedtuple('BRIGHTNESS', ['unicorn', 'scrollphat', 'blinkt'])
 
-LOW = BRIGHTNESS(0.45, 3, 0.04)
+LOW = BRIGHTNESS(0.45, 3, 0.033)
 MID = BRIGHTNESS(0.6, 7, 0.06)
 HIGH = BRIGHTNESS(0.75, 10, 0.08)
 ULTRA = BRIGHTNESS(1, 55, 0.25)

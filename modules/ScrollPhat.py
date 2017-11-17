@@ -83,9 +83,16 @@ class ScrollPhat(object):
         THREADS.append(t)
         t.start()
 
-    @staticmethod
-    def clear():
+    def clear(self, fast=False):
         log_str('clear scroll')
+
+        if not fast:
+            for x in range(11):
+                for y in range(5):
+                    scrollphat.set_pixel(x, y, 0)
+                    sleep(0.015)
+                    scrollphat.update()
+
         scrollphat.clear_buffer()
         scrollphat.clear()
         scrollphat.update()
