@@ -57,8 +57,6 @@ class UniCorn(object):
 
     def draw_animation(self, image=Image.open(TEST_IMAGE)):
 
-        # width, height = unicorn.get_shape()
-
         # this is the original pimoroni function for drawing sprites
 
         log_str('start image loop')

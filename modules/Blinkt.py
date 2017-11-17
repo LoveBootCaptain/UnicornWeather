@@ -45,17 +45,6 @@ class Blinkt(object):
         blinkt.show()
         time.sleep(0.075)
 
-    def clear(self, fast):
-        log_str('clear blinkt')
-
-        if not fast:
-            for i in reversed(range(8)):
-                blinkt.set_pixel(i, 0, 0, 0)
-                self.fade()
-
-        blinkt.clear()
-        blinkt.show()
-
     def show_graph(self, forecast_list=TEST_FORECAST):
 
         self.clear(False)
@@ -89,6 +78,17 @@ class Blinkt(object):
         t = Thread(target=Blinkt().led_loop, daemon=True)
         THREADS.append(t)
         t.start()
+
+    def clear(self, fast):
+        log_str('clear blinkt')
+
+        if not fast:
+            for i in reversed(range(8)):
+                blinkt.set_pixel(i, 0, 0, 0)
+                self.fade()
+
+        blinkt.clear()
+        blinkt.show()
 
 
 if __name__ == '__main__':

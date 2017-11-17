@@ -83,7 +83,8 @@ class ScrollPhat(object):
         THREADS.append(t)
         t.start()
 
-    def clear(self, fast=False):
+    @staticmethod
+    def clear(fast=False):
         log_str('clear scroll')
 
         if not fast:
