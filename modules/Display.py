@@ -1,5 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""
+This is for testing and not finished yet.
+"""
+
 import scrollphat
 from PIL import Image
 
