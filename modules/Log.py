@@ -8,7 +8,7 @@ lock_func = Lock()
 
 
 PROJECT_PATH = '/home/pi/UnicornWeather/'
-LOG_PATH = PROJECT_PATH + 'logs/new_debug.log'
+LOG_PATH = PROJECT_PATH + 'logs/debug.log'
 
 # create a debug logger
 DEBUG_LOG_FILENAME = LOG_PATH
