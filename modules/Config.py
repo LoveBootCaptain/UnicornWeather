@@ -37,25 +37,3 @@ LOW = BRIGHTNESS(0.45, 3, 0.033)
 MID = BRIGHTNESS(0.6, 7, 0.06)
 HIGH = BRIGHTNESS(0.75, 10, 0.08)
 ULTRA = BRIGHTNESS(1, 55, 0.25)
-
-
-# def set_brightness(device):
-#
-#     brightness = None
-#
-#     hour = int(datetime.datetime.now().strftime("%H"))
-#
-#     if 0 <= hour <= 8:
-#         brightness = LOW.scrollphat
-#
-#
-#     try:
-#
-#         if device == 'scrollphat':
-#             brightness = LOW.scrollphat
-#
-#         elif device == 'unicorn':
-#             brightness = LOW.unicorn
-#
-#     finally:
-#         return brightness
