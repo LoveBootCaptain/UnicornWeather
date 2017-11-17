@@ -109,8 +109,8 @@ class Data(object):
 
             color_list.append(color)
 
-        log_str('Regenwahrscheinlichkeit 8h: {}'.format(percentage_list[:forecast_range_hour]))
-        log_str('Farben auf Display: {}'.format(color_list))
+        log_str('precip probability 8h: {}'.format(percentage_list[:forecast_range_hour]))
+        log_str('colors on display: {}'.format(color_list))
 
         return color_list
 
