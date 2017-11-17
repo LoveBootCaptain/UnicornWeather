@@ -6,13 +6,13 @@ import time
 
 import atexit
 
+from modules.Blinkt import Blinkt
 from modules.Config import *
 from modules.Data import Data
 from modules.Log import log_str
 from modules.ScrollPhat import ScrollPhat
 from modules.UniCorn import UniCorn
 from modules.Update import Update
-from modules.Blinkt import Blinkt
 
 
 class App(object):
